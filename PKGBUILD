@@ -7,11 +7,14 @@
 #  - removed --enable-sse2 from double precision
 #  - removed --enable-sse from single precision
 
+# Alexei Colin <ac@alexeicolin.com>
+#  - enabled ARM NEON support
+
 pkgname=fftw
 pkgver=3.3.7
 pkgrel=1
 pkgdesc="A library for computing the discrete Fourier transform (DFT)"
-arch=('i686' 'x86_64')
+arch=('i686' 'x86_64' 'armv7h')
 license=('GPL2')
 url="http://www.fftw.org/"
 depends=('bash' 'gcc-libs')
@@ -26,42 +29,21 @@ sha1sums=('2ae980a8d44c161ce4a09c6e2d1c79243ecbabb2')
 
 
 build() {
-  cd ${srcdir}
+  cd ${srcdir}/${pkgname}-${pkgver}
   
-  cp -a ${pkgname}-${pkgver} ${pkgname}-${pkgver}-double
-  cp -a ${pkgname}-${pkgver} ${pkgname}-${pkgver}-long-double
-  mv ${pkgname}-${pkgver} ${pkgname}-${pkgver}-single
-  
-
   # use upstream default CFLAGS while keeping our -march/-mtune
   CFLAGS+=" -O3 -fomit-frame-pointer -fstrict-aliasing -ffast-math"
 
   CONFIGURE="./configure F77=gfortran --prefix=/usr \
-                 --enable-shared --enable-threads"
-
-  # build double precision
-  cd ${srcdir}/${pkgname}-${pkgver}-double
-  $CONFIGURE
-  make
-
-  # build & install long double precission
-  cd ${srcdir}/${pkgname}-${pkgver}-long-double
-  $CONFIGURE --enable-long-double
-  make
+                 --enable-shared --enable-threads \
+                 --enable-neon --enable-armv7a-pmccntr"
 
   # build & install single precision
-  cd ${srcdir}/${pkgname}-${pkgver}-single
   $CONFIGURE --enable-float
   make
 }
 
 package() {
-  cd ${srcdir}/${pkgname}-${pkgver}-double
-  make DESTDIR=${pkgdir} install
-
-  cd ${srcdir}/${pkgname}-${pkgver}-long-double
-  make DESTDIR=${pkgdir} install
-
-  cd ${srcdir}/${pkgname}-${pkgver}-single
+  cd ${srcdir}/${pkgname}-${pkgver}
   make DESTDIR=${pkgdir} install  
 }
