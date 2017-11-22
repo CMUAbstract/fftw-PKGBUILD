@@ -36,7 +36,7 @@ build() {
 
   CONFIGURE="./configure F77=gfortran --prefix=/usr \
                  --enable-shared --enable-threads \
-                 --enable-neon --enable-armv7a-pmccntr"
+                 --enable-neon --enable-armv7a-cntvct"
 
   # build & install single precision
   $CONFIGURE --enable-float
